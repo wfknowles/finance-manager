@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import helmet from 'helmet';
 import { BASE, HOST_NAME, HTTP_PORT, VERSION } from './config/constants';
 
 async function bootstrap() {
@@ -29,6 +30,7 @@ async function bootstrap() {
   /*
     Middleware
   */
+  app.use(helmet());
   app.setGlobalPrefix(`/v${VERSION}`);
   app.useGlobalPipes(
     new ValidationPipe({
@@ -40,7 +42,7 @@ async function bootstrap() {
     Start Service
   */
   await app.listen(_HTTP_PORT);
-  Logger.log(`Nest application ready on http://${_HOST_NAME}:${_HTTP_PORT}`, 'NestApplication');
+  Logger.log(`Ready on http://${_HOST_NAME}:${_HTTP_PORT}/v${VERSION}/${BASE}`, 'NestApplication');
 }
 
 bootstrap();

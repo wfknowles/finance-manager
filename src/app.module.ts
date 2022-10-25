@@ -4,6 +4,7 @@ import { RouterModule } from 'nest-router';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { routes } from './config/routes';
+import { PlaidModule } from './modules/plaid/plaid.module';
 
 
 @Module({
@@ -13,7 +14,8 @@ import { routes } from './config/routes';
     }), 
     RouterModule.forRoutes(routes), 
     AuthModule, 
-    UsersModule
+    UsersModule,
+    PlaidModule
   ],
 })
 export class AppModule {}

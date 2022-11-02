@@ -1,10 +1,7 @@
 import { Routes } from 'nest-router';
-<<<<<<< HEAD
 import { PlaidModule } from 'src/modules/plaid/plaid.module';
-import { AuthModule } from '../modules/auth/auth.module';
-=======
+import { ProofsModule } from 'src/modules/proofs/proofs.module';
 import { AuthModule } from './auth/auth.module';
->>>>>>> cc4037b368639bf06cc04f043821f846551ce3ba
 
 export const routes: Routes = [
   {
@@ -17,7 +14,11 @@ export const routes: Routes = [
       {
         path: 'plaid',
         module: PlaidModule,
-      }
+      },
+      {
+        path: 'proofs',
+        module: ProofsModule,
+      },
     ],
   },
 ];

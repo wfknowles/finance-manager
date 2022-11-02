@@ -1,10 +1,16 @@
-import { Controller, Request, Post, UseGuards, Logger, Get, Put } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  Post,
+  UseGuards,
+  Logger,
+  Get,
+  Put,
+} from '@nestjs/common';
 import { PlaidService } from './plaid.service';
-
 
 @Controller()
 export class PlaidController {
-
   private readonly logger: Logger;
 
   constructor(private service: PlaidService) {

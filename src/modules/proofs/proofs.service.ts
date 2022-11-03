@@ -5,10 +5,13 @@ export class ProofsService {
   private pattern = {
     ternary:
       /(?<condition>(?<!!*props\.\w+.*)!*props\.\w+(?=\s*\?))+|(?<true>(?<=!*props\.\w+.*\?).+(?=:.*))+|(?<false>(?!.*:).+)+/g,
-    // isTernary:
-    //   /(\s+!*props\.\w*\s*\?\s*('?.*'?|\s+!*props\..*\?.*:.*)\s*:\s*('?.*'?|\s+!*props\..*\?.*:.*))/g,
+    isTernary:
+      /(\s+!*props\.\w*\s*\?\s*('?.*'?|\s+!*props\..*\?.*:.*)\s*:\s*('?.*'?|\s+!*props\..*\?.*:.*))/g,
     prop: /(?<prop>(!*)(?<=!*props\.)(\w+))/g,
     bang: /(?<bang>(!*)(?=!*props\.))/g,
+    hasLiteral: /\$\{(.*?)\}/g,
+    isTernaryEsque: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
+    hasTernary: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g
   };
 
   private props = {
@@ -21,21 +24,31 @@ export class ProofsService {
     deletedAt: null,
   };
 
-  async regex(body) {
-    let regex = {};
-
-    for (const [k, v] of Object.entries(body)) {
-      regex = {
-        ...regex,
-        [k]: {
-          raw: v,
-          ternary: this.getTernary(v, true),
-        },
-      };
+  regex(str){
+    return {
+      0: str,
+      1: this.pattern.hasLiteral.test(str),
+      2: this.pattern.isTernaryEsque.test(str),
+      3: this.pattern.isTernary.test(str),
+      4: this.pattern.hasTernary.test(str),
     }
-
-    return { regex };
   }
+
+  // async regex(body) {
+  //   let regex = {};
+
+  //   for (const [k, v] of Object.entries(body)) {
+  //     regex = {
+  //       ...regex,
+  //       [k]: {
+  //         raw: v,
+  //         ternary: this.getTernary(v, true),
+  //       },
+  //     };
+  //   }
+
+  //   return { regex };
+  // }
 
   async test(body) {
     let regex = {};
@@ -54,7 +67,15 @@ export class ProofsService {
   }
 
   getString(str) {
-    return this.getTernary(str, true);
+    const string = this.getTernary(str, true);
+    const hasLiteral = this.pattern.hasLiteral.test(str);
+    // console.log({
+    //   0: str,
+    //   1: this.pattern.hasLiteral.test(str),
+    //   2: this.pattern.isTernaryEsque.test(str),
+    //   3: this.pattern.isTernary.test(str),
+    // })
+    return string
   }
 
   getTernary(raw, getResult = false) {
@@ -70,6 +91,8 @@ export class ProofsService {
       };
 
       const output = ternary[`${ternary.condition}`];
+
+      console.log({ output, result: this.regex(output)});
 
       return getResult ? output : ternary;
     } else if (ternArr.length === 1) {

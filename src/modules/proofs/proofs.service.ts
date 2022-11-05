@@ -1,130 +1,151 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class ProofsService {
-  private pattern = {
-    ternary:
-      /(?<condition>(?<!!*props\.\w+.*)!*props\.\w+(?=\s*\?))+|(?<true>(?<=!*props\.\w+.*\?).+(?=:.*))+|(?<false>(?!.*:).+)+/g,
-    isTernary:
-      /(\s+!*props\.\w*\s*\?\s*('?.*'?|\s+!*props\..*\?.*:.*)\s*:\s*('?.*'?|\s+!*props\..*\?.*:.*))/g,
+  private regex = {
+    hasTernary: /(?=.*\?.*:.*).*/g,
+    getTernary:
+      /((?<!\?.*)[^?\n]+(?=\b.*:.*)|(?<=.*\?.*)(?=\S+?).*(?<=\S+?)(?=.*:.*)|(?<=.*\?.*)(?!.*:.*)(?=\S+?)[^:\n]+)/g,
+    hasProp: /((!+?)(?<=!*props\.)(\w+))/g,
+    // hasProp: /(!+?props\.\w+)+/g,
+    getProp: /(?<=!+?props\.)(\w+)/,
+    replaceProp: /(props\.\w+)+/,
+    hasExpression: /\$\{(.*?)\}/g,
+    getExpression: /(?<=\$\{)(.*?)(?=\})/g,
     prop: /(?<prop>(!*)(?<=!*props\.)(\w+))/g,
-    bang: /(?<bang>(!*)(?=!*props\.))/g,
-    hasLiteral: /\$\{(.*?)\}/g,
-    isTernaryEsque: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
-    hasTernary: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g
+    expression: /((?=\$\{)[^}]+\})+?/g,
   };
 
-  private props = {
+  private testData = {
     id: 27,
-    name: 'ProofService',
-    display: 'Proofs',
-    createdAt: '2022-11-01 00:00:00',
-    updatedAt: '2022-11-01 02:00:00',
-    archivedAt: '2022-11-01 04:00:00',
+    name: 'sluggerville-baseball-bat',
+    display: 'Louisville Slugger Baseball Bat',
+    createdAt: '2022-11-01 12:00:00',
+    updatedAt: '2022-11-02 15:00:00',
+    archivedAt: '2022-11-03 16:00:00',
     deletedAt: null,
   };
 
-  regex(str){
+  // private pattern = {
+  //   getTernary:
+  //     /(?<!\?.*)[^?\n]*(?=\b.*:.*)|(?<=.*\?.*)(?=\S+?).*(?<=\S+?)(?=.*:.*)|(?<=.*\?.*)(?!.*:.*)(?=\S+?)[^:\n]+/g,
+  //   // ternaryz:
+  //   //   /(?<condition>(?<!!*props\.\w+.*)!*props\.\w+(?=\s*\?))+|(?<true>(?<=!*props\.\w+.*\?).+(?=:.*))+|(?<false>(?!.*:).+)+/g,
+  //   // isTernary:
+  //   //   /(\s+!*props\.\w*\s*\?\s*('?.*'?|\s+!*props\..*\?.*:.*)\s*:\s*('?.*'?|\s+!*props\..*\?.*:.*))/g,
+  //   // prop: /(?<prop>(!*)(?<=!*props\.)(\w+))/g,
+  //   // bang: /(?<bang>(!*)(?=!*props\.))/g,
+  //   // isTernaryEsque: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
+  //   // hasTernary: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
+  //   // props: {
+  //   //   getBang: /(!*)(?=!*props\.)/g,
+  //   //   prop: /(!*props\.\w+)+/g,
+  //   //   getProp: /(!*)(?<=!*props\.)(\w+)/g,
+  //   // },
+  //   // literal: {
+  //   //   get: /((?<=\$\{)[^}]+(?=\}))+?/g,
+  //   //   expression: /((?=\$\{)[^}]+\})+?/g,
+  //   //   hasExpression: /\$\{(.*?)\}/g,
+  //   //   delimiters: /(?<delimiters>\$\{|\})/g,
+  //   // },
+  //   // ternary: {
+  //   //   get: /((?<!!*props\.\w+.*)!*props\.\w+(?=\s*\?))|(?<=!*props\.\w+\s*\?\s*)(?=\S).*(?<=\S)(?=\s*:)|(?<=!*props\.\w+.*)(?!.*:)(?=\S).+(?=\})/g,
+  //   //   getTernary:
+  //   //     /((?<!!*props\.\w+.*)!*props\.\w+(?=\s*\?))|(?<=!*props\.\w+\s*\?\s*)(?=\S).*(?<=\S)(?=\s*:)|(?<=!*props\.\w+.*)(?!.*:)(?=\S).+[^}\r\s]/g,
+  //   //   hasTernary: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
+  //   // },
+  // };
+
+  getExpression(body: Record<string, string>) {
+    if (!body) return body;
+    const [key, raw] = Object.entries(body)[0];
+    if (!raw) return body;
+
     return {
-      0: str,
-      1: this.pattern.hasLiteral.test(str),
-      2: this.pattern.isTernaryEsque.test(str),
-      3: this.pattern.isTernary.test(str),
-      4: this.pattern.hasTernary.test(str),
-    }
+      [key]: {
+        raw,
+        processed: this.getString(raw),
+      },
+    };
   }
 
-  // async regex(body) {
-  //   let regex = {};
-
-  //   for (const [k, v] of Object.entries(body)) {
-  //     regex = {
-  //       ...regex,
-  //       [k]: {
-  //         raw: v,
-  //         ternary: this.getTernary(v, true),
-  //       },
-  //     };
-  //   }
-
-  //   return { regex };
-  // }
-
-  async test(body) {
-    let regex = {};
+  bulkExpressionHandler(body) {
+    let results = {};
 
     for (const [k, v] of Object.entries(body)) {
-      regex = {
-        ...regex,
+      results = {
+        ...results,
         [k]: {
           raw: v,
-          processed: this.getString(v),
+          processed: this.getString(v as string),
         },
       };
     }
 
-    return { regex };
+    return { ...results };
   }
 
-  getString(str) {
-    const string = this.getTernary(str, true);
-    const hasLiteral = this.pattern.hasLiteral.test(str);
+  getString(str: string): string {
+    if (!str) return str;
+    return str
+      .split(this.regex.expression)
+      .map((s: string) => this.interpolate(s))
+      .join('');
+  }
+
+  getTernary(raw) {
+    if (!raw || !raw.match(this.regex.hasTernary)) return raw;
+
+    const ternary = raw.match(this.regex.getTernary);
     // console.log({
-    //   0: str,
-    //   1: this.pattern.hasLiteral.test(str),
-    //   2: this.pattern.isTernaryEsque.test(str),
-    //   3: this.pattern.isTernary.test(str),
-    // })
-    return string
+    //   raw,
+    //   ternary,
+    //   return: this.getProp(ternary[0])
+    //     ? this.getTernary(ternary[1])
+    //     : this.getTernary(ternary[2]),
+    // });
+    if (ternary.length !== 3) return raw;
+
+    return this.getProp(ternary[0])
+      ? this.getTernary(ternary[1])
+      : this.getTernary(ternary[2]);
   }
 
-  getTernary(raw, getResult = false) {
-    if (!raw) return;
+  getProp(raw) {
+    console.log({
+      raw,
+      has: !!raw.match(this.regex.prop),
+      key: raw.match(this.regex.getProp),
+    });
+    if (!raw || !raw.match(this.regex.prop)) return raw;
 
-    const ternArr = this.getRegex(raw, this.pattern.ternary);
+    const [propKey] = raw.match(this.regex.prop);
 
-    if (ternArr.length === 3) {
-      const ternary = {
-        condition: this.getCondition(ternArr[0]),
-        true: this.getTernary(ternArr[1], getResult),
-        false: this.getTernary(ternArr[2], getResult),
-      };
+    const prop = raw.replace(this.regex.replaceProp, this.testData[propKey]);
 
-      const output = ternary[`${ternary.condition}`];
+    return `${this.eval(prop)}`;
+  }
 
-      console.log({ output, result: this.regex(output)});
+  interpolate(raw) {
+    if (!raw || !raw.match(this.regex.hasExpression)) return raw;
 
-      return getResult ? output : ternary;
-    } else if (ternArr.length === 1) {
-      const string = ternArr[0];
-      return string;
-    } else {
-      return raw;
+    const [expression] = raw.match(this.regex.getExpression);
+
+    const interpolated = expression
+      .split(this.regex.hasProp)
+      .map((s) => this.getProp(s))
+      .join('');
+
+    return this.eval(interpolated)
+      ? this.eval(interpolated)
+      : this.getTernary(interpolated);
+  }
+
+  eval(expression: string): string {
+    try {
+      return eval(expression);
+    } catch {
+      return null;
     }
-  }
-
-  getCondition(input: string) {
-    const condition = (bang, prop) => {
-      switch (bang) {
-        case '!!':
-          return !!prop;
-        case '!':
-          return !prop;
-        default:
-          return !!prop;
-      }
-    };
-    if (input) {
-      const bang = this.getRegex(input, this.pattern.bang)[0];
-      const key = this.getRegex(input, this.pattern.prop)[0];
-      const prop = this.props[key];
-      return condition(bang, prop);
-    }
-  }
-
-  getRegex(input, pattern) {
-    return input
-      .match(pattern)
-      .reduce((acc, i) => (i.length > 0 ? [...acc, i] : acc), []);
   }
 }

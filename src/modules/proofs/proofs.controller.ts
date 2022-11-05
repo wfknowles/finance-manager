@@ -17,13 +17,13 @@ export class ProofsController {
     this.logger = new Logger(this.constructor.name);
   }
 
-  @Post('regex')
-  init(@Request() req) {
-    return this.service.regex(req.body);
+  @Post('expressions')
+  runExpressions(@Request() req) {
+    return this.service.bulkExpressionHandler(req.body);
   }
 
-  @Post('test')
-  runTest(@Request() req) {
-    return this.service.test(req.body);
+  @Post('expression')
+  runExpression(@Request() req) {
+    return this.service.bulkExpressionHandler(req.body);
   }
 }

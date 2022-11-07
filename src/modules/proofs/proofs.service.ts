@@ -1,4 +1,4 @@
-import { Body, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class ProofsService {
@@ -6,14 +6,15 @@ export class ProofsService {
     hasTernary: /(?=.*\?.*:.*).*/g,
     getTernary:
       /((?<!\?.*)[^?\n]+(?=\b.*:.*)|(?<=.*\?.*)(?=\S+?).*(?<=\S+?)(?=.*:.*)|(?<=.*\?.*)(?!.*:.*)(?=\S+?)[^:\n]+)/g,
-    hasProp: /((!+?)(?<=!*props\.)(\w+))/g,
-    // hasProp: /(!+?props\.\w+)+/g,
-    getProp: /(?<=!+?props\.)(\w+)/,
+    isTernaryLike: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
+    prop: /(props\.\w+)+/,
+    // hasProp: /((!+?)(?<=!*props\.)(\w+))/g,
+    getProp: /((?<=props\.)(\w+))/,
     replaceProp: /(props\.\w+)+/,
+    expression: /((?=\$\{)[^}]+\})+?/g,
     hasExpression: /\$\{(.*?)\}/g,
     getExpression: /(?<=\$\{)(.*?)(?=\})/g,
-    prop: /(?<prop>(!*)(?<=!*props\.)(\w+))/g,
-    expression: /((?=\$\{)[^}]+\})+?/g,
+    
   };
 
   private testData = {
@@ -25,36 +26,6 @@ export class ProofsService {
     archivedAt: '2022-11-03 16:00:00',
     deletedAt: null,
   };
-
-  // private pattern = {
-  //   getTernary:
-  //     /(?<!\?.*)[^?\n]*(?=\b.*:.*)|(?<=.*\?.*)(?=\S+?).*(?<=\S+?)(?=.*:.*)|(?<=.*\?.*)(?!.*:.*)(?=\S+?)[^:\n]+/g,
-  //   // ternaryz:
-  //   //   /(?<condition>(?<!!*props\.\w+.*)!*props\.\w+(?=\s*\?))+|(?<true>(?<=!*props\.\w+.*\?).+(?=:.*))+|(?<false>(?!.*:).+)+/g,
-  //   // isTernary:
-  //   //   /(\s+!*props\.\w*\s*\?\s*('?.*'?|\s+!*props\..*\?.*:.*)\s*:\s*('?.*'?|\s+!*props\..*\?.*:.*))/g,
-  //   // prop: /(?<prop>(!*)(?<=!*props\.)(\w+))/g,
-  //   // bang: /(?<bang>(!*)(?=!*props\.))/g,
-  //   // isTernaryEsque: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
-  //   // hasTernary: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
-  //   // props: {
-  //   //   getBang: /(!*)(?=!*props\.)/g,
-  //   //   prop: /(!*props\.\w+)+/g,
-  //   //   getProp: /(!*)(?<=!*props\.)(\w+)/g,
-  //   // },
-  //   // literal: {
-  //   //   get: /((?<=\$\{)[^}]+(?=\}))+?/g,
-  //   //   expression: /((?=\$\{)[^}]+\})+?/g,
-  //   //   hasExpression: /\$\{(.*?)\}/g,
-  //   //   delimiters: /(?<delimiters>\$\{|\})/g,
-  //   // },
-  //   // ternary: {
-  //   //   get: /((?<!!*props\.\w+.*)!*props\.\w+(?=\s*\?))|(?<=!*props\.\w+\s*\?\s*)(?=\S).*(?<=\S)(?=\s*:)|(?<=!*props\.\w+.*)(?!.*:)(?=\S).+(?=\})/g,
-  //   //   getTernary:
-  //   //     /((?<!!*props\.\w+.*)!*props\.\w+(?=\s*\?))|(?<=!*props\.\w+\s*\?\s*)(?=\S).*(?<=\S)(?=\s*:)|(?<=!*props\.\w+.*)(?!.*:)(?=\S).+[^}\r\s]/g,
-  //   //   hasTernary: /(?:!*props\.w+)+ | \?+ | :+ |(?:'.*'){2,}/g,
-  //   // },
-  // };
 
   getExpression(body: Record<string, string>) {
     if (!body) return body;
@@ -69,7 +40,7 @@ export class ProofsService {
     };
   }
 
-  bulkExpressionHandler(body) {
+  bulkExpressionHandler(body: Record<string, string>) {
     let results = {};
 
     for (const [k, v] of Object.entries(body)) {
@@ -93,59 +64,56 @@ export class ProofsService {
       .join('');
   }
 
-  getTernary(raw) {
-    if (!raw || !raw.match(this.regex.hasTernary)) return raw;
+  hasTernary(raw: string): boolean {
+    if (raw.match(this.regex.hasTernary)) return true;
+
+    if (raw.match(this.regex.isTernaryLike)) {
+      Logger.error(`TernaySyntaxError: ${raw}`);
+    } 
+    return false;
+  }
+
+  getTernary(raw: string): string {
+    if (!raw || !this.hasTernary(raw)) return raw;
 
     const ternary = raw.match(this.regex.getTernary);
-    // console.log({
-    //   raw,
-    //   ternary,
-    //   return: this.getProp(ternary[0])
-    //     ? this.getTernary(ternary[1])
-    //     : this.getTernary(ternary[2]),
-    // });
+
     if (ternary.length !== 3) return raw;
 
-    return this.getProp(ternary[0])
+    return ternary[0]
       ? this.getTernary(ternary[1])
       : this.getTernary(ternary[2]);
   }
 
-  getProp(raw) {
-    console.log({
-      raw,
-      has: !!raw.match(this.regex.prop),
-      key: raw.match(this.regex.getProp),
-    });
-    if (!raw || !raw.match(this.regex.prop)) return raw;
+  getProp(raw: string): string {
 
-    const [propKey] = raw.match(this.regex.prop);
+    if (!raw || !this.regex.prop.test(raw)) return raw;
+
+    const [propKey] = raw.match(this.regex.getProp);
 
     const prop = raw.replace(this.regex.replaceProp, this.testData[propKey]);
 
-    return `${this.eval(prop)}`;
+    return prop;
   }
 
-  interpolate(raw) {
+  interpolate(raw: string) {
     if (!raw || !raw.match(this.regex.hasExpression)) return raw;
 
     const [expression] = raw.match(this.regex.getExpression);
 
     const interpolated = expression
-      .split(this.regex.hasProp)
+      .split(this.regex.prop)
       .map((s) => this.getProp(s))
       .join('');
 
-    return this.eval(interpolated)
-      ? this.eval(interpolated)
-      : this.getTernary(interpolated);
+    return this.eval(interpolated);
   }
 
   eval(expression: string): string {
     try {
       return eval(expression);
     } catch {
-      return null;
+      return this.getTernary(expression);
     }
   }
 }

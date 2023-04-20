@@ -41,12 +41,14 @@ async function bootstrap() {
     }),
   );
 
-  
   /*
     Start Service
   */
   await app.listen(_HTTP_PORT);
-  Logger.log(`Ready on http://${_HOST_NAME}:${_HTTP_PORT}/v${VERSION}/${BASE}`, 'NestApplication');
+  Logger.log(
+    `Ready on http://${_HOST_NAME}:${_HTTP_PORT}/v${VERSION}/${BASE}`,
+    'FinanceManager',
+  );
 }
 
 bootstrap();

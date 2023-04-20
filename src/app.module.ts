@@ -7,7 +7,6 @@ import { routes } from './config/routes';
 import { PlaidModule } from './modules/plaid/plaid.module';
 
 import { DatabaseModule } from './config/db/db.module';
-import { ProofsModule } from './modules/proofs/proofs.module';
 
 @Module({
   imports: [
@@ -15,11 +14,10 @@ import { ProofsModule } from './modules/proofs/proofs.module';
       isGlobal: true,
     }),
     RouterModule.forRoutes(routes),
-    // DatabaseModule,
+    DatabaseModule,
     AuthModule,
     UsersModule,
     PlaidModule,
-    ProofsModule,
   ],
 })
 export class AppModule {}

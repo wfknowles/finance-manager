@@ -1,7 +1,15 @@
 import { BaseEntity } from 'src/config/base-entity';
-import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { AccountEntity } from '../account/account.entity';
 import { BudgetItemEntity } from '../budget-item/budget-item.entity';
+import { TransactionEntity } from '../transaction/transaction.entity';
 
 @Entity({
   name: 'concerns',
@@ -16,13 +24,28 @@ export class ConcernEntity extends BaseEntity {
   })
   name: string;
 
+  @Column({
+    nullable: true,
+  })
+  parentId?: number;
+
   /**
    * Relations
    */
 
-  @OneToOne(() => BudgetItemEntity, (budgetItem) => budgetItem.concern)
-  budgetItem?: ConcernEntity;
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.concern)
+  transactions?: TransactionEntity[];
+
+  @OneToMany(() => BudgetItemEntity, (budgetItem) => budgetItem.concern)
+  budgetItems?: ConcernEntity[];
+
+  @OneToMany(() => ConcernEntity, (concern) => concern.parent)
+  children?: ConcernEntity[];
 
   @ManyToOne(() => AccountEntity, (account) => account.concerns)
   account?: AccountEntity;
+
+  @ManyToOne(() => ConcernEntity, (concern) => concern.children)
+  @JoinColumn({ name: 'parentId' })
+  parent?: ConcernEntity;
 }

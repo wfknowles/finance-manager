@@ -1,5 +1,6 @@
 import { BaseEntity } from 'src/config/base-entity';
-import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
+import { ColumnNumericTransformer } from 'src/utils/column-numeric.transformer';
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { BudgetEntity } from '../budget/budget.entity';
 import { ConcernEntity } from '../concern/concern.entity';
 
@@ -16,10 +17,45 @@ export class BudgetItemEntity extends BaseEntity {
   })
   name: string;
 
+  @Column({
+    type: 'numeric',
+    precision: 9,
+    scale: 2,
+    nullable: true,
+    transformer: new ColumnNumericTransformer(),
+    comment: '',
+  })
+  amount: number;
+
+  @Column({
+    comment: '',
+  })
+  canAccrue: boolean;
+
+  @Column({
+    type: 'numeric',
+    precision: 9,
+    scale: 2,
+    nullable: true,
+    transformer: new ColumnNumericTransformer(),
+    comment: '',
+  })
+  accrualMax: number;
+
+  @Column({
+    comment: '',
+  })
+  label?: string;
+
+  @Column({
+    comment: '',
+  })
+  order?: number;
+
   /**
    * Relations
    */
-  @OneToOne(() => ConcernEntity, (concern) => concern.budgetItem)
+  @ManyToOne(() => ConcernEntity, (concern) => concern.budgetItems)
   concern?: ConcernEntity;
 
   @ManyToOne(() => BudgetEntity, (budget) => budget.budgetItems)

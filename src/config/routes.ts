@@ -1,5 +1,7 @@
 import { Routes } from 'nest-router';
+import { AccountModule } from 'src/modules/account/account.module';
 import { PlaidModule } from 'src/modules/plaid/plaid.module';
+import { UserModule } from 'src/modules/user/user.module';
 import { AuthModule } from './auth/auth.module';
 
 export const routes: Routes = [
@@ -13,6 +15,14 @@ export const routes: Routes = [
       {
         path: 'plaid',
         module: PlaidModule,
+      },
+      {
+        path: 'accounts',
+        module: AccountModule,
+      },
+      {
+        path: 'users',
+        module: UserModule,
       },
     ],
   },

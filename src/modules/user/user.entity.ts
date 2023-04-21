@@ -2,7 +2,7 @@ import { BaseEntity } from 'src/config/base-entity';
 import { Column, Entity } from 'typeorm';
 
 @Entity({
-  name: 'account',
+  name: 'users',
   orderBy: {
     sort: 'ASC',
     name: 'ASC',

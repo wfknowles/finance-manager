@@ -8,7 +8,7 @@ dotenv.config();
 type NodeEnvironment = 'development' | 'test' | 'production';
 
 export class DatabaseFactory implements TypeOrmOptionsFactory {
-  createTypeOrmOptions(): TypeOrmModuleOptions {
+  createTypeOrmOptions(): TypeOrmModuleOptions | any {
     return {
       type: 'postgres',
       host: this.host,
@@ -23,10 +23,10 @@ export class DatabaseFactory implements TypeOrmOptionsFactory {
       entities: this.entities,
       subscribers: this.subscribers,
       migrations: this.migrations,
-      // cli: {
-      //   migrationsDir: 'src/migrations',
-      //   subscribersDir: 'src/subscribers',
-      // },
+      cli: {
+        migrationsDir: 'src/migrations',
+        subscribersDir: 'src/subscribers',
+      },
     };
   }
 

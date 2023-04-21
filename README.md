@@ -58,6 +58,38 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## NestJS
+
+```bash
+# Generate the following files for `module-name`: module, controller w/ spec, service w/ spec
+$ npm run nest:create --name=module-name
+
+# Generate the following file for `module-name`: module
+$ npm run nest:create:module --name=module-name
+
+# Generate the following file for `module-name`: controller w/ spec
+$ npm run nest:create:controller --name=module-name
+
+# Generate the following file for `module-name`: service w/ spec
+$ npm run nest:create:service --name=module-name
+```
+
+## TypeORM
+
+```bash
+# Generate an automatic migration file
+$ yarn typeorm:migration:generate descriptive-migration-name
+
+# Generate an empty migration file
+$ yarn typeorm:migration:create descriptive-migration-name
+
+# Run all migrations
+$ yarn typeorm:migration:run
+
+# Revert latest migration
+$ yarn typeorm migration:revert
+```
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).

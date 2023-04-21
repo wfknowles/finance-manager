@@ -5,9 +5,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { BASE, HOST_NAME, HTTP_PORT, VERSION } from './config/constants';
-import * as bodyParser from 'body-parser';
-import * as express from 'express';
-import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
+// import * as bodyParser from 'body-parser';
+// import * as express from 'express';
+// import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

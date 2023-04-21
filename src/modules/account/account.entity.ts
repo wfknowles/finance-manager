@@ -1,9 +1,11 @@
-import { IsHexColor, IsOptional } from 'class-validator';
 import { BaseEntity } from 'src/config/base-entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { BudgetEntity } from '../budget/budget.entity';
+import { ConcernEntity } from '../concern/concern.entity';
+import { TransactionEntity } from '../transaction/transaction.entity';
 
 @Entity({
-  name: 'account',
+  name: 'accounts',
   orderBy: {
     sort: 'ASC',
     name: 'ASC',
@@ -14,4 +16,17 @@ export class AccountEntity extends BaseEntity {
     comment: '',
   })
   name: string;
+
+  /**
+   * Relations
+   */
+
+  @OneToMany(() => BudgetEntity, (budget) => budget.account)
+  budgets?: BudgetEntity[];
+
+  @OneToMany(() => ConcernEntity, (concern) => concern.account)
+  concerns?: ConcernEntity[];
+
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.account)
+  transactions?: ConcernEntity[];
 }

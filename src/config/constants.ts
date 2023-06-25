@@ -7,3 +7,5 @@ export const HTTP_PORT = 'HTTP_PORT';
 export const DB_SCHEMA = 'public';
 
 export const JWT_SECRET_KEY = 'JWT_SECRET_KEY';
+
+export const TIMESTAMP_FIELDS = ['createdAt', 'updatedAt', 'deletedAt'];

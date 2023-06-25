@@ -16,6 +16,7 @@ export class AuthService {
       where: {
         username,
       },
+      relations: ['account'],
     });
 
     if (!user || !user.password) {
@@ -34,9 +35,15 @@ export class AuthService {
   }
 
   async login(user: UserEntity) {
+    const { id, firstName, lastName, username, account } = user;
     const payload = {
-      username: user.username,
-      id: user.id,
+      user: {
+        id,
+        firstName,
+        lastName,
+        username,
+        accountId: account.id,
+      },
     };
 
     return {

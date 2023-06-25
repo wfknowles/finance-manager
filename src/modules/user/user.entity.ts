@@ -1,12 +1,9 @@
 import { BaseEntity } from 'src/config/base-entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { AccountEntity } from '../account/account.entity';
 
 @Entity({
   name: 'users',
-  orderBy: {
-    sort: 'ASC',
-    name: 'ASC',
-  },
 })
 export class UserEntity extends BaseEntity {
   @Column({
@@ -27,10 +24,20 @@ export class UserEntity extends BaseEntity {
   @Column({
     comment: '',
   })
-  email: string;
+  email?: string;
 
   @Column({
     comment: '',
   })
   password: string;
+
+  /**
+   * Relations
+   */
+
+  @ManyToOne(() => AccountEntity, (account) => account.users)
+  account?: AccountEntity;
+
+  // @ManyToOne(() => ConcernEntity, (concern) => concern.transactions)
+  // concern?: ConcernEntity;
 }

@@ -5,10 +5,6 @@ import { BudgetItemEntity } from '../budget-item/budget-item.entity';
 
 @Entity({
   name: 'budgets',
-  orderBy: {
-    sort: 'ASC',
-    name: 'ASC',
-  },
 })
 export class BudgetEntity extends BaseEntity {
   @Column({
@@ -20,8 +16,8 @@ export class BudgetEntity extends BaseEntity {
    * Relations
    */
 
-  @OneToMany(() => BudgetItemEntity, (budgetItem) => budgetItem.budget)
-  budgetItems?: BudgetItemEntity[];
+  @OneToMany(() => BudgetItemEntity, (item) => item.budget)
+  items?: BudgetItemEntity[];
 
   @ManyToOne(() => AccountEntity, (account) => account.budgets)
   account?: AccountEntity;

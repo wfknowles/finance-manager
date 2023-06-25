@@ -3,19 +3,17 @@ import { ColumnNumericTransformer } from 'src/utils/column-numeric.transformer';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { AccountEntity } from '../account/account.entity';
 import { ConcernEntity } from '../concern/concern.entity';
+import { InstitutionEntity } from '../institution/institution.entity';
 
 @Entity({
   name: 'transactions',
-  orderBy: {
-    sort: 'ASC',
-    name: 'ASC',
-  },
 })
 export class TransactionEntity extends BaseEntity {
   @Column({
+    type: 'date',
     comment: '',
   })
-  name: string;
+  date: Date;
 
   @Column({
     type: 'numeric',
@@ -34,6 +32,7 @@ export class TransactionEntity extends BaseEntity {
 
   @Column({
     comment: 'User provided transaction description',
+    nullable: true,
   })
   description?: string;
 
@@ -46,9 +45,7 @@ export class TransactionEntity extends BaseEntity {
    * Relations
    */
 
-  @OneToMany(() => TransactionEntity, (transaction) => transaction.parent, {
-    eager: true,
-  })
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.parent)
   children?: TransactionEntity[];
 
   @ManyToOne(() => AccountEntity, (account) => account.transactions)
@@ -56,6 +53,9 @@ export class TransactionEntity extends BaseEntity {
 
   @ManyToOne(() => ConcernEntity, (concern) => concern.transactions)
   concern?: ConcernEntity;
+
+  @ManyToOne(() => InstitutionEntity, (institution) => institution.transactions)
+  institution?: InstitutionEntity;
 
   @ManyToOne(() => TransactionEntity, (transaction) => transaction.children)
   @JoinColumn({ name: 'parentId' })

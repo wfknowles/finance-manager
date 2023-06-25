@@ -8,6 +8,10 @@ import { routes } from './config/routes';
 import { DatabaseModule } from './config/db/db.module';
 import { UserModule } from './modules/user/user.module';
 import { AccountModule } from './modules/account/account.module';
+import { BudgetModule } from './modules/budget/budget.module';
+import { ConcernModule } from './modules/concern/concern.module';
+import { TransactionModule } from './modules/transaction/transaction.module';
+import { BudgetItemModule } from './modules/budget-item/budget-item.module';
 
 @Module({
   imports: [
@@ -19,7 +23,10 @@ import { AccountModule } from './modules/account/account.module';
     AuthModule,
     AccountModule,
     UserModule,
-    // PlaidModule,
+    BudgetModule,
+    BudgetItemModule,
+    ConcernModule,
+    TransactionModule,
   ],
 })
 export class AppModule {}

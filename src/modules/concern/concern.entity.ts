@@ -13,10 +13,6 @@ import { TransactionEntity } from '../transaction/transaction.entity';
 
 @Entity({
   name: 'concerns',
-  orderBy: {
-    sort: 'ASC',
-    name: 'ASC',
-  },
 })
 export class ConcernEntity extends BaseEntity {
   @Column({
@@ -29,6 +25,11 @@ export class ConcernEntity extends BaseEntity {
   })
   parentId?: number;
 
+  @Column({
+    nullable: true,
+  })
+  order?: number;
+
   /**
    * Relations
    */
@@ -36,8 +37,8 @@ export class ConcernEntity extends BaseEntity {
   @OneToMany(() => TransactionEntity, (transaction) => transaction.concern)
   transactions?: TransactionEntity[];
 
-  @OneToMany(() => BudgetItemEntity, (budgetItem) => budgetItem.concern)
-  budgetItems?: ConcernEntity[];
+  @OneToMany(() => BudgetItemEntity, (item) => item.concern)
+  items?: ConcernEntity[];
 
   @OneToMany(() => ConcernEntity, (concern) => concern.parent)
   children?: ConcernEntity[];
